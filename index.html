@@ -78,8 +78,6 @@ select option{background:var(--surface2)}
 .empty-icon{font-size:48px;margin-bottom:12px}
 .pb{height:4px;background:var(--border);border-radius:4px;margin-top:8px;overflow:hidden}
 .pf{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width .3s}
-.no-ch{background:#f7a26a11;border:1px solid #f7a26a44;border-radius:10px;padding:14px;margin-bottom:16px;color:var(--accent2);font-size:13px;line-height:1.6}
-.no-ch code{background:#ffffff11;padding:2px 6px;border-radius:4px;font-family:monospace}
 </style>
 </head>
 <body>
@@ -93,21 +91,13 @@ select option{background:var(--surface2)}
   <button class="nb" onclick="showPage('stats',this)">📊 Статистика</button>
 </nav>
 
-<!-- СПИСОК -->
 <div id="page-list" class="page active">
   <div id="giveaways-container">
     <div class="empty"><div class="empty-icon">🎯</div><div>Загрузка...</div></div>
   </div>
 </div>
 
-<!-- СОЗДАТЬ -->
 <div id="page-create" class="page">
-  <div id="no-channels-warning" class="no-ch" style="display:none">
-    ⚠️ Нет каналов. Сначала добавь канал в бот командой:<br>
-    <code>/add_channel @твой_канал</code><br>
-    Бот должен быть администратором канала.
-  </div>
-
   <div class="fs">
     <div class="fst">📢 Канал</div>
     <div class="fr">
@@ -115,7 +105,6 @@ select option{background:var(--surface2)}
       <select id="f-channel"></select>
     </div>
   </div>
-
   <div class="fs">
     <div class="fst">📝 Основное</div>
     <div class="fr"><label>Название розыгрыша</label><input id="f-title" type="text" placeholder="Большой розыгрыш декабря"></div>
@@ -125,13 +114,11 @@ select option{background:var(--surface2)}
       <div class="fr"><label>Длительность (часов)</label><input id="f-duration" type="number" value="24" min="1" max="720"></div>
     </div>
   </div>
-
   <div class="fs">
     <div class="fst">🎁 Призы</div>
     <div id="prizes-container"></div>
     <button class="apb" onclick="addPrize()"><span>＋</span> Добавить приз</button>
   </div>
-
   <div class="fs">
     <div class="fst">🚀 Запуск</div>
     <div class="fr">
@@ -146,7 +133,6 @@ select option{background:var(--surface2)}
       <input id="f-starts" type="datetime-local">
     </div>
   </div>
-
   <div class="fs">
     <div class="fst">🔁 Повтор</div>
     <div class="fr">
@@ -157,11 +143,9 @@ select option{background:var(--surface2)}
       </div>
     </div>
   </div>
-
   <button class="bm" onclick="submit()">СОЗДАТЬ РОЗЫГРЫШ</button>
 </div>
 
-<!-- СТАТИСТИКА -->
 <div id="page-stats" class="page">
   <div id="stats-container"><div class="empty"><div class="empty-icon">📊</div><div>Загрузка...</div></div></div>
 </div>
@@ -174,39 +158,15 @@ if (tg) { tg.ready(); tg.expand(); }
 
 let startType = 'now', repeatType = 'none', prizeCount = 0;
 
-// ── Получаем каналы из URL параметра (бот передаёт их) ──
-function getChannelsFromUrl() {
-  // Твои каналы — просто добавляй сюда
-  return [
-    "@youtisllllllllllllllllllllllllll",
-    "@твой_канал_2",
-  ];
-}
-  // Способ 1: из URL параметра ?channels=@ch1,@ch2
-  const urlParams = new URLSearchParams(window.location.search);
-  const fromUrl = urlParams.get('channels');
-  if (fromUrl) return fromUrl.split(',').filter(Boolean);
-
-  // Способ 2: из Telegram initData startParam
-  if (tg?.initDataUnsafe?.start_param) {
-    const sp = tg.initDataUnsafe.start_param;
-    if (sp.includes('@') || sp.includes('-100')) {
-      return sp.split(',').filter(Boolean);
-    }
-  }
-
-  // Способ 3: из hash параметра (Telegram WebApp передаёт через #)
-  if (window.location.hash) {
-    try {
-      const hash = window.location.hash.slice(1);
-      const p = new URLSearchParams(hash);
-      const ch = p.get('channels');
-      if (ch) return ch.split(',').filter(Boolean);
-    } catch(e) {}
-  }
-
-  return [];
-}
+// ════════════════════════════════════════════════
+//  ⚙️  ТВОИ КАНАЛЫ — просто добавляй сюда
+// ════════════════════════════════════════════════
+const MY_CHANNELS = [
+  "@youtisllllllllllllllllllllllllll",
+  "@твой_канал_2",
+  // "@третий_канал",
+];
+// ════════════════════════════════════════════════
 
 window.onload = () => {
   fillChannels();
@@ -216,19 +176,13 @@ window.onload = () => {
 
 function fillChannels() {
   const sel = document.getElementById('f-channel');
-  const channels = getChannelsFromUrl();
-  const warn = document.getElementById('no-channels-warning');
-
-  if (!channels.length) {
-    warn.style.display = 'block';
+  if (!MY_CHANNELS.length) {
     const opt = document.createElement('option');
-    opt.value = ''; opt.text = '❌ Нет каналов — добавь через /add_channel';
+    opt.value = ''; opt.text = '❌ Добавь каналы в MY_CHANNELS';
     sel.appendChild(opt);
     return;
   }
-
-  warn.style.display = 'none';
-  channels.forEach(ch => {
+  MY_CHANNELS.forEach(ch => {
     const opt = document.createElement('option');
     opt.value = ch; opt.text = ch;
     sel.appendChild(opt);
@@ -240,7 +194,7 @@ function showPage(name, btn) {
   document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   if (btn) btn.classList.add('active');
-  if (name === 'list') loadGiveaways();
+  if (name === 'list')  loadGiveaways();
   if (name === 'stats') loadStats();
 }
 
@@ -286,31 +240,33 @@ function fdt(iso) {
 function finishGw(i) {
   if (!confirm('Завершить досрочно?')) return;
   const gws = JSON.parse(localStorage.getItem('giveaways')||'[]');
-  gws[i].status='finished'; localStorage.setItem('giveaways',JSON.stringify(gws));
-  sendBot({action:'finish_giveaway',giveaway_id:gws[i].id});
+  gws[i].status = 'finished';
+  localStorage.setItem('giveaways', JSON.stringify(gws));
+  sendBot({action:'finish_giveaway', giveaway_id: gws[i].id});
   loadGiveaways(); showToast('✅ Завершён!');
 }
 
 function cancelGw(i) {
   if (!confirm('Отменить?')) return;
   const gws = JSON.parse(localStorage.getItem('giveaways')||'[]');
-  gws[i].status='cancelled'; localStorage.setItem('giveaways',JSON.stringify(gws));
-  sendBot({action:'cancel_giveaway',giveaway_id:gws[i].id});
+  gws[i].status = 'cancelled';
+  localStorage.setItem('giveaways', JSON.stringify(gws));
+  sendBot({action:'cancel_giveaway', giveaway_id: gws[i].id});
   loadGiveaways(); showToast('❌ Отменён','error');
 }
 
 function showPrizes(i) {
   const gws = JSON.parse(localStorage.getItem('giveaways')||'[]');
-  const p = gws[i].prizes||[];
+  const p = gws[i].prizes || [];
   alert('🎁 Призы:\n\n' + (p.length ? p.map(x=>`${x.place}. ${x.label} | ${x.code}`).join('\n') : 'Нет'));
 }
 
 function loadStats() {
   const c = document.getElementById('stats-container');
-  const stored = JSON.parse(localStorage.getItem('giveaways')||'[]');
-  const total=stored.length, active=stored.filter(g=>g.status==='active').length,
-        finished=stored.filter(g=>g.status==='finished').length,
-        sched=stored.filter(g=>g.status==='scheduled').length;
+  const s = JSON.parse(localStorage.getItem('giveaways')||'[]');
+  const total=s.length, active=s.filter(g=>g.status==='active').length,
+        finished=s.filter(g=>g.status==='finished').length,
+        sched=s.filter(g=>g.status==='scheduled').length;
   c.innerHTML = `
     <div class="sg">
       <div class="sc"><div class="sn">${total}</div><div class="sl">Всего</div></div>
@@ -318,24 +274,23 @@ function loadStats() {
       <div class="sc"><div class="sn" style="color:var(--accent2)">${sched}</div><div class="sl">Запланировано</div></div>
       <div class="sc"><div class="sn" style="color:var(--muted)">${finished}</div><div class="sl">Завершено</div></div>
     </div>
-    ${active>0?`<div class="fs"><div class="fst">🟢 Активные</div>${stored.filter(g=>g.status==='active').map(g=>`
+    ${active>0?`<div class="fs"><div class="fst">🟢 Активные</div>${s.filter(g=>g.status==='active').map(g=>`
       <div style="padding:10px 0;border-bottom:1px solid var(--border)">
         <div style="font-weight:700">${g.title}</div>
         <div style="color:var(--muted);font-size:12px;margin-top:4px">📢 ${g.channel} · 🏆 ${g.winners_count} · ⏱ ${g.duration_hours}ч</div>
       </div>`).join('')}</div>`:''}`;
 }
 
-// ── Форма ──
 function setStart(t, btn) {
   startType = t;
-  document.querySelectorAll('#page-create .fs:nth-child(5) .tb').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('#page-create .fs:nth-child(4) .tb').forEach(b=>b.classList.remove('sel'));
   btn.classList.add('sel');
   document.getElementById('sched-row').style.display = t==='later'?'block':'none';
 }
 
 function setRepeat(t, btn) {
   repeatType = t;
-  document.querySelectorAll('#page-create .fs:nth-child(6) .tb').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('#page-create .fs:nth-child(5) .tb').forEach(b=>b.classList.remove('sel'));
   btn.classList.add('sel');
 }
 
@@ -343,8 +298,9 @@ function addPrize() {
   prizeCount++;
   const c = document.getElementById('prizes-container');
   const d = document.createElement('div');
-  d.className='pr'; d.id=`prize-${prizeCount}`;
-  d.innerHTML=`<span class="pn">${prizeCount}</span>
+  d.className = 'pr'; d.id = `prize-${prizeCount}`;
+  d.innerHTML = `
+    <span class="pn">${prizeCount}</span>
     <input type="text" placeholder="Название приза" class="pl">
     <span style="color:var(--muted);font-size:16px">|</span>
     <input type="text" placeholder="ПРОМОКОД" class="pc" style="font-family:monospace;max-width:140px">
@@ -354,12 +310,14 @@ function addPrize() {
 }
 
 function removePrize(id) {
-  const el=document.getElementById(id);
-  if(el&&document.querySelectorAll('.pr').length>1){el.remove();updateNums();}
+  const el = document.getElementById(id);
+  if (el && document.querySelectorAll('.pr').length > 1) {
+    el.remove(); updateNums();
+  }
 }
 
 function updateNums() {
-  document.querySelectorAll('.pr').forEach((r,i)=>r.querySelector('.pn').textContent=i+1);
+  document.querySelectorAll('.pr').forEach((r,i) => r.querySelector('.pn').textContent = i+1);
 }
 
 function submit() {
@@ -369,49 +327,59 @@ function submit() {
   const winners = parseInt(document.getElementById('f-winners').value);
   const dur     = parseFloat(document.getElementById('f-duration').value);
 
-  if (!channel || channel === '') { showToast('❌ Нет каналов','error'); return; }
+  if (!channel) { showToast('❌ Нет канала','error'); return; }
   if (!title)   { showToast('❌ Введи название','error'); return; }
   if (!desc)    { showToast('❌ Введи описание','error'); return; }
 
-  const prizes=[];
-  document.querySelectorAll('.pr').forEach((r,i)=>{
-    const l=r.querySelector('.pl').value.trim(), c=r.querySelector('.pc').value.trim();
-    if(l&&c) prizes.push({place:i+1,label:l,code:c});
+  const prizes = [];
+  document.querySelectorAll('.pr').forEach((r,i) => {
+    const l = r.querySelector('.pl').value.trim();
+    const c = r.querySelector('.pc').value.trim();
+    if (l && c) prizes.push({place: i+1, label: l, code: c});
   });
   if (!prizes.length) { showToast('❌ Добавь хотя бы один приз','error'); return; }
 
-  let starts_at=null;
-  if (startType==='later') {
-    const v=document.getElementById('f-starts').value;
+  let starts_at = null;
+  if (startType === 'later') {
+    const v = document.getElementById('f-starts').value;
     if (!v) { showToast('❌ Укажи дату запуска','error'); return; }
-    starts_at=new Date(v).toISOString();
+    starts_at = new Date(v).toISOString();
   }
 
-  const gw={id:Date.now(),channel,title,description:desc,winners_count:winners,duration_hours:dur,
-             starts_at,repeat:repeatType,status:startType==='later'?'scheduled':'active',
-             prizes,created_at:new Date().toISOString()};
+  const gw = {
+    id: Date.now(), channel, title, description: desc,
+    winners_count: winners, duration_hours: dur,
+    starts_at, repeat: repeatType,
+    status: startType === 'later' ? 'scheduled' : 'active',
+    prizes, created_at: new Date().toISOString()
+  };
 
-  const stored=JSON.parse(localStorage.getItem('giveaways')||'[]');
-  stored.unshift(gw); localStorage.setItem('giveaways',JSON.stringify(stored));
+  const stored = JSON.parse(localStorage.getItem('giveaways') || '[]');
+  stored.unshift(gw);
+  localStorage.setItem('giveaways', JSON.stringify(stored));
 
   sendBot({
-    action:'create_giveaway',
-    giveaway:{channel,title,description:desc,winners_count:winners,duration_hours:dur,
-              starts_at,repeat_interval:repeatType==='none'?null:repeatType},
+    action: 'create_giveaway',
+    giveaway: {
+      channel, title, description: desc,
+      winners_count: winners, duration_hours: dur,
+      starts_at,
+      repeat_interval: repeatType === 'none' ? null : repeatType
+    },
     prizes
   });
 
-  showToast(startType==='later'?'📅 Запланирован!':'✅ Создан!');
+  showToast(startType === 'later' ? '📅 Запланирован!' : '✅ Создан!');
 
-  // Сброс
-  document.getElementById('f-title').value='';
-  document.getElementById('f-description').value='';
-  document.getElementById('f-winners').value=1;
-  document.getElementById('f-duration').value=24;
-  document.getElementById('prizes-container').innerHTML='';
-  prizeCount=0; addPrize(); startType='now'; repeatType='none';
+  // Сброс формы
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-description').value = '';
+  document.getElementById('f-winners').value = 1;
+  document.getElementById('f-duration').value = 24;
+  document.getElementById('prizes-container').innerHTML = '';
+  prizeCount = 0; addPrize(); startType = 'now'; repeatType = 'none';
 
-  setTimeout(()=>{ document.querySelector('.nb').click(); },800);
+  setTimeout(() => document.querySelector('.nb').click(), 800);
 }
 
 function sendBot(data) {
@@ -421,4 +389,3 @@ function sendBot(data) {
 </script>
 </body>
 </html>
-
