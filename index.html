@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giveaway Panel</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Golos+Text:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:        #0a0a0f;
+  --surface:   #13131a;
+  --surface2:  #1c1c28;
+  --border:    #2a2a3d;
+  --accent:    #7c6af7;
+  --accent2:   #f7a26a;
+  --success:   #4ade80;
+  --danger:    #f87171;
+  --text:      #e8e8f0;
+  --muted:     #6b6b88;
+  --radius:    14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Golos Text', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* ── Шапка ── */
+.header {
+  background: linear-gradient(135deg, #1a1030 0%, #0f1a30 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 18px 20px 14px;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-top { display: flex; align-items: center; gap: 12px; }
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.header-subtitle { color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+/* ── Навигация ── */
+.nav {
+  display: flex;
+  gap: 6px;
+  padding: 14px 20px 0;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.nav::-webkit-scrollbar { display: none; }
+.nav-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-family: 'Golos Text', sans-serif;
+  font-size: 13px; font-weight: 600;
+  padding: 8px 16px 10px;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all .2s;
+}
+.nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.nav-btn:hover:not(.active) { color: var(--text); }
+
+/* ── Страницы ── */
+.page { display: none; padding: 20px; animation: fadeIn .25s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ── Карточки розыгрышей ── */
+.giveaway-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.giveaway-card::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+.giveaway-card.active::before  { background: var(--success); }
+.giveaway-card.scheduled::before { background: var(--accent2); }
+.giveaway-card.finished::before { background: var(--muted); }
+.giveaway-card:hover { border-color: var(--accent); }
+
+.card-title {
+  font-weight: 700; font-size: 15px; margin-bottom: 6px;
+  padding-left: 10px;
+}
+.card-meta {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding-left: 10px;
+}
+.badge {
+  font-size: 11px; font-weight: 600; padding: 3px 8px;
+  border-radius: 20px; white-space: nowrap;
+}
+.badge.active   { background: #4ade8022; color: var(--success); }
+.badge.scheduled{ background: #f7a26a22; color: var(--accent2); }
+.badge.finished { background: #ffffff11; color: var(--muted); }
+.badge.cancelled{ background: #f8717122; color: var(--danger); }
+.badge.info     { background: #7c6af722; color: var(--accent); }
+
+.card-actions {
+  display: flex; gap: 8px; margin-top: 12px; padding-left: 10px;
+}
+.btn-sm {
+  border: none; cursor: pointer; font-family: 'Golos Text', sans-serif;
+  font-size: 12px; font-weight: 600; border-radius: 8px;
+  padding: 6px 12px; transition: all .15s;
+}
+.btn-sm.danger  { background: #f8717122; color: var(--danger); }
+.btn-sm.success { background: #4ade8022; color: var(--success); }
+.btn-sm.primary { background: #7c6af722; color: var(--accent); }
+.btn-sm:hover   { filter: brightness(1.3); }
+
+/* ── Статистика ── */
+.stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; text-align: center;
+}
+.stat-num {
+  font-family: 'Bebas Neue', sans-serif; font-size: 36px; line-height: 1;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.stat-label { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+/* ── Форма создания ── */
+.form-section {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px; margin-bottom: 16px;
+}
+.form-section-title {
+  font-family: 'Bebas Neue', sans-serif; font-size: 18px;
+  letter-spacing: 1px; color: var(--accent); margin-bottom: 14px;
+}
+.form-row { margin-bottom: 14px; }
+label { display: block; font-size: 12px; font-weight: 600;
+        color: var(--muted); margin-bottom: 6px; }
+input, select, textarea {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 14px; color: var(--text);
+  font-family: 'Golos Text', sans-serif; font-size: 14px;
+  transition: border-color .2s; outline: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px #7c6af720;
+}
+textarea { resize: vertical; min-height: 80px; }
+select option { background: var(--surface2); }
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ── Призы ── */
+.prize-row {
+  display: flex; gap: 8px; align-items: center;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 12px; margin-bottom: 8px;
+}
+.prize-num {
+  font-family: 'Bebas Neue', sans-serif; font-size: 20px;
+  color: var(--accent2); min-width: 24px;
+}
+.prize-row input {
+  background: none; border: none; padding: 4px 6px;
+  font-size: 13px; flex: 1;
+}
+.prize-row input:focus { box-shadow: none; border: none; }
+.remove-prize {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 18px; padding: 0 4px;
+  transition: color .15s;
+}
+.remove-prize:hover { color: var(--danger); }
+
+.add-prize-btn {
+  width: 100%; background: none; border: 1px dashed var(--border);
+  border-radius: 10px; padding: 10px; cursor: pointer;
+  color: var(--muted); font-family: 'Golos Text', sans-serif;
+  font-size: 13px; font-weight: 600; transition: all .2s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.add-prize-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Переключатели ── */
+.toggle-group {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.toggle-btn {
+  border: 1px solid var(--border); background: none; cursor: pointer;
+  color: var(--muted); border-radius: 10px; padding: 8px 14px;
+  font-family: 'Golos Text', sans-serif; font-size: 13px; font-weight: 600;
+  transition: all .15s;
+}
+.toggle-btn.selected {
+  background: var(--accent); border-color: var(--accent); color: #fff;
+}
+
+/* ── Главная кнопка ── */
+.btn-main {
+  width: 100%; padding: 16px; border: none; cursor: pointer;
+  background: linear-gradient(135deg, var(--accent), #5b4fd4);
+  color: #fff; font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px; letter-spacing: 2px; border-radius: var(--radius);
+  transition: all .2s; margin-top: 8px;
+}
+.btn-main:hover { filter: brightness(1.15); transform: translateY(-1px); }
+.btn-main:active { transform: translateY(0); }
+.btn-main:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 20px;
+  font-size: 14px; font-weight: 600; opacity: 0;
+  transition: all .3s; pointer-events: none; z-index: 999;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--success); color: var(--success); }
+.toast.error   { border-color: var(--danger);  color: var(--danger); }
+
+/* ── Пустое состояние ── */
+.empty {
+  text-align: center; padding: 40px 20px; color: var(--muted);
+}
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-text { font-size: 15px; }
+
+/* ── Прогресс-бар ── */
+.progress-bar {
+  height: 4px; background: var(--border); border-radius: 4px;
+  margin-top: 8px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 4px; transition: width .3s;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="logo">🎉 GIVEAWAY</div>
+      <div class="header-subtitle">Панель управления розыгрышами</div>
+    </div>
+  </div>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="showPage('list')">📋 Розыгрыши</button>
+  <button class="nav-btn" onclick="showPage('create')">➕ Создать</button>
+  <button class="nav-btn" onclick="showPage('stats')">📊 Статистика</button>
+</nav>
+
+<!-- ══════════════ СПИСОК ══════════════ -->
+<div id="page-list" class="page active">
+  <div id="giveaways-container">
+    <div class="empty">
+      <div class="empty-icon">🎯</div>
+      <div class="empty-text">Загрузка розыгрышей...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ СОЗДАТЬ ══════════════ -->
+<div id="page-create" class="page">
+
+  <div class="form-section">
+    <div class="form-section-title">📢 Канал</div>
+    <div class="form-row">
+      <label>Выбери канал для публикации</label>
+      <select id="f-channel"></select>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">📝 Основное</div>
+    <div class="form-row">
+      <label>Название розыгрыша</label>
+      <input id="f-title" type="text" placeholder="Большой розыгрыш декабря">
+    </div>
+    <div class="form-row">
+      <label>Описание (условия, что разыгрывается)</label>
+      <textarea id="f-description" placeholder="Разыгрываем промокоды на скидку..."></textarea>
+    </div>
+    <div class="row2">
+      <div class="form-row">
+        <label>Победителей</label>
+        <input id="f-winners" type="number" value="1" min="1" max="20">
+      </div>
+      <div class="form-row">
+        <label>Длительность (часов)</label>
+        <input id="f-duration" type="number" value="24" min="1" max="720">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">🎁 Призы</div>
+    <div id="prizes-container"></div>
+    <button class="add-prize-btn" onclick="addPrize()">
+      <span>＋</span> Добавить приз
+    </button>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">🚀 Запуск</div>
+    <div class="form-row">
+      <label>Когда запустить?</label>
+      <div class="toggle-group">
+        <button class="toggle-btn selected" onclick="setStartType('now', this)">⚡ Сразу</button>
+        <button class="toggle-btn" onclick="setStartType('later', this)">📅 Отложить</button>
+      </div>
+    </div>
+    <div id="schedule-row" class="form-row" style="display:none">
+      <label>Дата и время запуска</label>
+      <input id="f-starts-at" type="datetime-local">
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">🔁 Повтор</div>
+    <div class="form-row">
+      <div class="toggle-group">
+        <button class="toggle-btn selected" onclick="setRepeat('none', this)">❌ Без повтора</button>
+        <button class="toggle-btn" onclick="setRepeat('daily', this)">📅 Каждый день</button>
+        <button class="toggle-btn" onclick="setRepeat('weekly', this)">📆 Каждую неделю</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-main" onclick="submitGiveaway()">СОЗДАТЬ РОЗЫГРЫШ</button>
+</div>
+
+<!-- ══════════════ СТАТИСТИКА ══════════════ -->
+<div id="page-stats" class="page">
+  <div id="stats-container">
+    <div class="empty">
+      <div class="empty-icon">📊</div>
+      <div class="empty-text">Загрузка статистики...</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+}
+
+// ── Состояние ──
+let startType   = 'now';
+let repeatType  = 'none';
+let prizeCount  = 0;
+let giveaways   = [];
+
+// Каналы — получаем из бота или задаём дефолт
+// В реальном деплое бот передаёт их через initData
+const channels = (tg?.initDataUnsafe?.start_param || '')
+  .split(',').filter(Boolean);
+
+// ── Инициализация ──
+window.onload = () => {
+  fillChannels();
+  loadGiveaways();
+  // Добавляем первый приз по умолчанию
+  addPrize();
+};
+
+function fillChannels() {
+  const sel = document.getElementById('f-channel');
+  // Если каналы пришли от бота — используем их
+  const list = channels.length ? channels : ['@ваш_канал'];
+  list.forEach(ch => {
+    const opt = document.createElement('option');
+    opt.value = ch; opt.text = ch;
+    sel.appendChild(opt);
+  });
+}
+
+// ── Навигация ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+
+  if (name === 'list')  loadGiveaways();
+  if (name === 'stats') loadStats();
+}
+
+// ── Тост ──
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.className = 'toast', 2500);
+}
+
+// ── Список розыгрышей (мок — в реальности через бота) ──
+function loadGiveaways() {
+  const container = document.getElementById('giveaways-container');
+
+  // Читаем из localStorage как временное хранилище
+  const stored = JSON.parse(localStorage.getItem('giveaways') || '[]');
+  giveaways = stored;
+
+  if (!stored.length) {
+    container.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">🎯</div>
+        <div class="empty-text">Нет розыгрышей. Создай первый!</div>
+      </div>`;
+    return;
+  }
+
+  const statusLabel = {active:'active',scheduled:'scheduled',finished:'finished',cancelled:'cancelled'};
+  const statusText  = {active:'🟢 Активен',scheduled:'🟡 Запланирован',finished:'⚪ Завершён',cancelled:'🔴 Отменён'};
+
+  container.innerHTML = stored.map((gw, i) => `
+    <div class="giveaway-card ${gw.status}">
+      <div class="card-title">${gw.title}</div>
+      <div class="card-meta">
+        <span class="badge ${gw.status}">${statusText[gw.status] || gw.status}</span>
+        <span class="badge info">📢 ${gw.channel}</span>
+        <span class="badge info">🏆 ${gw.winners_count} поб.</span>
+        <span class="badge info">⏱ ${gw.duration_hours}ч</span>
+        ${gw.repeat !== 'none' ? `<span class="badge info">🔁 ${gw.repeat === 'daily' ? 'ежедневно' : 'еженедельно'}</span>` : ''}
+        ${gw.starts_at ? `<span class="badge info">📅 ${formatDt(gw.starts_at)}</span>` : ''}
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width:${gw.status==='active'?'60':gw.status==='finished'?'100':'20'}%"></div>
+      </div>
+      <div class="card-actions">
+        ${gw.status === 'active' ? `<button class="btn-sm success" onclick="finishGiveaway(${i})">✅ Завершить</button>` : ''}
+        ${gw.status !== 'finished' && gw.status !== 'cancelled'
+          ? `<button class="btn-sm danger" onclick="cancelGiveaway(${i})">❌ Отменить</button>` : ''}
+        <button class="btn-sm primary" onclick="showPrizes(${i})">🎁 Призы</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function formatDt(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleString('ru', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+
+function finishGiveaway(i) {
+  if (!confirm('Завершить розыгрыш досрочно?')) return;
+  giveaways[i].status = 'finished';
+  saveGiveaways();
+  sendToBot({ action: 'finish_giveaway', giveaway_id: giveaways[i].id });
+  loadGiveaways();
+  showToast('✅ Розыгрыш завершён!');
+}
+
+function cancelGiveaway(i) {
+  if (!confirm('Отменить розыгрыш?')) return;
+  giveaways[i].status = 'cancelled';
+  saveGiveaways();
+  sendToBot({ action: 'cancel_giveaway', giveaway_id: giveaways[i].id });
+  loadGiveaways();
+  showToast('❌ Розыгрыш отменён', 'error');
+}
+
+function showPrizes(i) {
+  const prizes = giveaways[i].prizes || [];
+  if (!prizes.length) { showToast('Нет призов', 'error'); return; }
+  const text = prizes.map(p => `${p.place}. ${p.label} | ${p.code}`).join('\n');
+  alert('🎁 Призы:\n\n' + text);
+}
+
+// ── Статистика ──
+function loadStats() {
+  const container = document.getElementById('stats-container');
+  const stored = JSON.parse(localStorage.getItem('giveaways') || '[]');
+
+  const total    = stored.length;
+  const active   = stored.filter(g => g.status === 'active').length;
+  const finished = stored.filter(g => g.status === 'finished').length;
+  const scheduled= stored.filter(g => g.status === 'scheduled').length;
+
+  container.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num">${total}</div>
+        <div class="stat-label">Всего розыгрышей</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--success)">${active}</div>
+        <div class="stat-label">Активных</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--accent2)">${scheduled}</div>
+        <div class="stat-label">Запланировано</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--muted)">${finished}</div>
+        <div class="stat-label">Завершено</div>
+      </div>
+    </div>
+    ${active > 0 ? `
+    <div class="form-section">
+      <div class="form-section-title">🟢 Активные розыгрыши</div>
+      ${stored.filter(g=>g.status==='active').map(g=>`
+        <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+          <div style="font-weight:700">${g.title}</div>
+          <div style="color:var(--muted);font-size:12px;margin-top:4px">
+            📢 ${g.channel} · 🏆 ${g.winners_count} победителей · ⏱ ${g.duration_hours}ч
+          </div>
+        </div>
+      `).join('')}
+    </div>` : ''}
+  `;
+}
+
+// ── Форма создания ──
+function setStartType(type, btn) {
+  startType = type;
+  document.querySelectorAll('#page-create .form-section:nth-child(4) .toggle-btn')
+    .forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('schedule-row').style.display = type === 'later' ? 'block' : 'none';
+}
+
+function setRepeat(type, btn) {
+  repeatType = type;
+  document.querySelectorAll('#page-create .form-section:nth-child(5) .toggle-btn')
+    .forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function addPrize() {
+  prizeCount++;
+  const container = document.getElementById('prizes-container');
+  const div = document.createElement('div');
+  div.className = 'prize-row';
+  div.id = `prize-${prizeCount}`;
+  div.innerHTML = `
+    <span class="prize-num">${prizeCount}</span>
+    <input type="text" placeholder="Название приза" class="prize-label">
+    <span style="color:var(--muted);font-size:16px">|</span>
+    <input type="text" placeholder="ПРОМОКОД" class="prize-code" style="font-family:monospace;max-width:140px">
+    <button class="remove-prize" onclick="removePrize('prize-${prizeCount}')">×</button>
+  `;
+  container.appendChild(div);
+  // Обновляем номера
+  updatePrizeNumbers();
+}
+
+function removePrize(id) {
+  const el = document.getElementById(id);
+  if (el && document.querySelectorAll('.prize-row').length > 1) {
+    el.remove();
+    updatePrizeNumbers();
+  }
+}
+
+function updatePrizeNumbers() {
+  document.querySelectorAll('.prize-row').forEach((row, i) => {
+    row.querySelector('.prize-num').textContent = i + 1;
+  });
+}
+
+function submitGiveaway() {
+  const channel     = document.getElementById('f-channel').value;
+  const title       = document.getElementById('f-title').value.trim();
+  const description = document.getElementById('f-description').value.trim();
+  const winners     = parseInt(document.getElementById('f-winners').value);
+  const duration    = parseFloat(document.getElementById('f-duration').value);
+
+  if (!title)       { showToast('❌ Введи название', 'error'); return; }
+  if (!description) { showToast('❌ Введи описание', 'error'); return; }
+
+  // Собираем призы
+  const prizes = [];
+  document.querySelectorAll('.prize-row').forEach((row, i) => {
+    const label = row.querySelector('.prize-label').value.trim();
+    const code  = row.querySelector('.prize-code').value.trim();
+    if (label && code) {
+      prizes.push({ place: i + 1, label, code });
+    }
+  });
+
+  if (!prizes.length) { showToast('❌ Добавь хотя бы один приз', 'error'); return; }
+
+  let starts_at = null;
+  if (startType === 'later') {
+    starts_at = document.getElementById('f-starts-at').value;
+    if (!starts_at) { showToast('❌ Укажи дату запуска', 'error'); return; }
+    // Конвертируем из datetime-local в ISO
+    starts_at = new Date(starts_at).toISOString();
+  }
+
+  const giveaway = {
+    id: Date.now(),
+    channel, title, description,
+    winners_count: winners,
+    duration_hours: duration,
+    starts_at,
+    repeat: repeatType,
+    status: startType === 'later' ? 'scheduled' : 'active',
+    prizes,
+    created_at: new Date().toISOString(),
+  };
+
+  // Сохраняем локально
+  const stored = JSON.parse(localStorage.getItem('giveaways') || '[]');
+  stored.unshift(giveaway);
+  localStorage.setItem('giveaways', JSON.stringify(stored));
+
+  // Отправляем в бот
+  sendToBot({
+    action: 'create_giveaway',
+    giveaway: {
+      channel, title, description,
+      winners_count: winners,
+      duration_hours: duration,
+      starts_at,
+      repeat_interval: repeatType === 'none' ? null : repeatType,
+    },
+    prizes,
+  });
+
+  showToast(startType === 'later' ? '📅 Розыгрыш запланирован!' : '✅ Розыгрыш создан!');
+
+  // Сбрасываем форму
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-description').value = '';
+  document.getElementById('f-winners').value = 1;
+  document.getElementById('f-duration').value = 24;
+  document.getElementById('prizes-container').innerHTML = '';
+  prizeCount = 0;
+  addPrize();
+  startType = 'now';
+  repeatType = 'none';
+
+  // Переходим на список
+  setTimeout(() => {
+    document.querySelectorAll('.nav-btn')[0].click();
+  }, 800);
+}
+
+// ── Отправка данных в Telegram бот ──
+function sendToBot(data) {
+  if (tg) {
+    tg.sendData(JSON.stringify(data));
+  } else {
+    console.log('WebApp data:', data);
+  }
+}
+
+function saveGiveaways() {
+  localStorage.setItem('giveaways', JSON.stringify(giveaways));
+}
+</script>
+</body>
+</html>
