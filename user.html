@@ -11,74 +11,94 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Golos Text',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;padding-bottom:30px}
 
-/* Шапка */
-.hdr{background:linear-gradient(135deg,#1a0a30 0%,#0a1a30 100%);padding:20px 20px 16px;text-align:center;position:relative;overflow:hidden}
-.hdr::before{content:'🎉';position:absolute;font-size:120px;opacity:.05;top:-20px;left:-20px}
-.hdr::after{content:'🎊';position:absolute;font-size:100px;opacity:.05;bottom:-20px;right:-20px}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:3px;background:linear-gradient(90deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.tagline{color:var(--m);font-size:12px;margin-top:3px}
+.hdr{background:linear-gradient(135deg,#180a30,#0a1830);padding:22px 20px 18px;text-align:center;position:relative;overflow:hidden}
+.hdr::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,#7c6af720,transparent 70%)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;background:linear-gradient(90deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative}
+.tagline{color:var(--m);font-size:12px;margin-top:4px;position:relative}
 
-/* Навигация */
-.nav{display:flex;background:var(--s);border-bottom:1px solid var(--b)}
+/* Обязательная подписка — баннер сверху */
+.sub-banner{margin:14px 14px 0;background:linear-gradient(135deg,#1a1030,#0f1a30);border:1px solid var(--a);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.sub-icon{font-size:24px;flex-shrink:0}
+.sub-text{font-size:12px;line-height:1.5}
+.sub-text b{color:var(--a2)}
+.sub-link{display:inline-block;margin-top:6px;background:var(--a);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;text-decoration:none}
+
+.nav{display:flex;background:var(--s);border-bottom:1px solid var(--b);margin-top:14px}
 .nb{flex:1;background:none;border:none;cursor:pointer;color:var(--m);font-family:'Golos Text',sans-serif;font-size:12px;font-weight:700;padding:12px 8px;border-bottom:2px solid transparent;transition:all .2s}
 .nb.on{color:var(--a);border-bottom-color:var(--a)}
 
-.pg{display:none;padding:16px;animation:fi .2s ease}
+.pg{display:none;padding:14px;animation:fi .2s ease}
 .pg.on{display:block}
 @keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 
 /* Карточка розыгрыша */
 .gcard{background:var(--s);border:1px solid var(--b);border-radius:var(--r);margin-bottom:14px;overflow:hidden;transition:border-color .2s}
 .gcard:hover{border-color:var(--a)}
-.gcard-top{padding:16px 16px 12px;position:relative}
-.gcard-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:#4ade8022;color:var(--ok);margin-bottom:8px}
-.gcard-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;line-height:1.1;margin-bottom:6px}
-.gcard-desc{color:var(--m);font-size:13px;line-height:1.5}
-.gcard-info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--b);margin-top:12px;border-radius:10px;overflow:hidden}
-.info-cell{background:var(--s2);padding:10px 8px;text-align:center}
-.info-num{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--a)}
-.info-lbl{color:var(--m);font-size:10px;margin-top:1px}
-.timer{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--a2);margin-top:10px;letter-spacing:1px}
+.gtop{padding:16px 16px 0}
+.glive{display:inline-flex;align-items:center;gap:5px;background:#4ade8015;border:1px solid #4ade8030;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:var(--ok);margin-bottom:10px}
+.glive::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--ok);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.gtitle{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;line-height:1.1;margin-bottom:6px}
+.gdesc{color:var(--m);font-size:13px;line-height:1.5;margin-bottom:12px}
+
+.gstats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--b);border-radius:10px;overflow:hidden;margin-bottom:12px}
+.gstat{background:var(--s2);padding:10px 6px;text-align:center}
+.gstat-n{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--a);line-height:1}
+.gstat-l{color:var(--m);font-size:10px;margin-top:2px}
+
+.gtimer{font-size:12px;color:var(--a2);font-weight:600;margin-bottom:10px;letter-spacing:.5px}
+
+/* Призы */
+.gprizes{background:var(--s2);border-top:1px solid var(--b);padding:12px 16px}
+.gprizes-title{font-size:11px;font-weight:700;color:var(--m);margin-bottom:8px;letter-spacing:.5px}
+.prize-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--b)}
+.prize-item:last-child{border:none}
+.prize-num{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--a2);min-width:22px}
+.prize-label{font-size:13px;font-weight:600}
+.prize-hint{font-size:11px;color:var(--m);margin-top:1px}
 
 /* Кнопка участвовать */
-.join-btn{display:block;width:100%;padding:14px;background:linear-gradient(135deg,var(--a),#5b4fd4);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;text-align:center;border:none;cursor:pointer;transition:all .2s}
+.join-wrap{padding:0}
+.join-btn{display:block;width:100%;padding:16px;background:linear-gradient(135deg,var(--a),#5b4fd4);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;text-align:center;border:none;cursor:pointer;transition:all .2s}
 .join-btn:hover{filter:brightness(1.1)}
-.join-btn:active{filter:brightness(.95)}
-.join-btn.joined{background:linear-gradient(135deg,#2a4a2a,#1a3a1a);color:var(--ok)}
-.join-btn:disabled{opacity:.6;cursor:not-allowed}
+.join-btn:active{filter:brightness(.9);transform:scale(.99)}
+.join-btn.joined{background:linear-gradient(135deg,#1a3a2a,#0f2a1a);color:var(--ok);letter-spacing:1px}
+.join-btn.loading{opacity:.7;cursor:not-allowed}
+.join-btn:disabled{cursor:not-allowed}
 
-/* Моя статистика */
-.my-card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:16px;margin-bottom:12px}
-.my-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--a);margin-bottom:12px}
-.my-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b)}
-.my-row:last-child{border:none}
-.my-label{color:var(--m);font-size:12px}
-.my-val{font-weight:700;font-size:14px}
+/* Профиль */
+.profile-card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.profile-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--a);margin-bottom:12px}
+.prow{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b)}
+.prow:last-child{border:none}
+.plabel{color:var(--m);font-size:12px}
+.pval{font-weight:700;font-size:14px}
 .ref-box{background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:12px;margin-top:10px}
-.ref-label{color:var(--m);font-size:11px;margin-bottom:6px}
-.ref-link{font-family:monospace;font-size:12px;color:var(--a);word-break:break-all;cursor:pointer}
-.copy-btn{display:block;width:100%;margin-top:8px;padding:8px;background:#7c6af722;border:none;border-radius:8px;color:var(--a);font-family:'Golos Text',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.ref-lbl{color:var(--m);font-size:11px;margin-bottom:6px}
+.ref-val{font-family:monospace;font-size:11px;color:var(--a);word-break:break-all;line-height:1.5}
+.copy-btn{display:block;width:100%;margin-top:8px;padding:9px;background:#7c6af722;border:1px solid var(--a);border-radius:8px;color:var(--a);font-family:'Golos Text',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
 .copy-btn:hover{background:#7c6af733}
+.copy-btn:active{transform:scale(.98)}
 
-/* Пустое состояние */
 .empty{text-align:center;padding:50px 20px;color:var(--m)}
 .empty-i{font-size:50px;margin-bottom:12px}
-.empty-t{font-size:14px;line-height:1.6}
+.empty-t{font-size:13px;line-height:1.7}
 
-/* Тост */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.ok{border-color:var(--ok);color:var(--ok)}.toast.err{border-color:var(--err);color:var(--err)}
+.toast.ok{border-color:var(--ok);color:var(--ok)}.toast.err{border-color:var(--err);color:var(--err)}.toast.warn{border-color:var(--a2);color:var(--a2)}
 
-/* Прогресс-бар */
-.pbar{height:3px;background:var(--b);margin-top:10px}
-.pfill{height:100%;background:linear-gradient(90deg,var(--a),var(--a2));transition:width .5s}
-
-/* Призы превью */
-.prizes-preview{padding:10px 16px 14px;background:var(--s2);border-top:1px solid var(--b)}
-.prize-row{display:flex;align-items:center;gap:8px;padding:5px 0}
-.prize-place{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--a2);min-width:20px}
-.prize-name{font-size:12px;color:var(--m)}
+/* Модалка "нет подписки" */
+.modal-overlay{display:none;position:fixed;inset:0;background:#000a;z-index:200;align-items:flex-end;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--s);border:1px solid var(--b);border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:500px;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;margin-bottom:8px}
+.modal-desc{color:var(--m);font-size:13px;line-height:1.6;margin-bottom:16px}
+.modal-ch{background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.modal-ch-name{font-weight:700;font-size:13px}
+.modal-ch-link{background:var(--a);color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;text-decoration:none;white-space:nowrap}
+.modal-close{width:100%;margin-top:12px;padding:12px;background:none;border:1px solid var(--b);border-radius:10px;color:var(--m);font-family:'Golos Text',sans-serif;font-size:13px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -88,22 +108,37 @@ body{font-family:'Golos Text',sans-serif;background:var(--bg);color:var(--t);min
   <div class="tagline">Участвуй и выигрывай промокоды!</div>
 </div>
 
-<nav class="nav">
-  <button class="nb on" onclick="showPage('giveaways',this)">🎯 Розыгрыши</button>
-  <button class="nb" onclick="showPage('mystat',this)">👤 Моя статистика</button>
-</nav>
-
-<!-- РОЗЫГРЫШИ -->
-<div id="pg-giveaways" class="pg on">
-  <div id="giveaways-list">
-    <div class="empty"><div class="empty-i">⏳</div><div class="empty-t">Загрузка розыгрышей...</div></div>
+<!-- Баннер обязательной подписки -->
+<div class="sub-banner">
+  <div class="sub-icon">📢</div>
+  <div class="sub-text">
+    Для участия нужна подписка на<br>
+    <b>@zonavpnrobot0</b>
+    <br>
+    <a class="sub-link" href="https://t.me/zonavpnrobot0" target="_blank">Подписаться →</a>
   </div>
 </div>
 
-<!-- МОЯ СТАТИСТИКА -->
-<div id="pg-mystat" class="pg">
-  <div id="mystat-container">
-    <div class="empty"><div class="empty-i">👤</div><div class="empty-t">Загрузка...</div></div>
+<nav class="nav">
+  <button class="nb on" onclick="showPage('giveaways',this)">🎯 Розыгрыши</button>
+  <button class="nb" onclick="showPage('profile',this)">👤 Профиль</button>
+</nav>
+
+<div id="pg-giveaways" class="pg on">
+  <div id="list"></div>
+</div>
+
+<div id="pg-profile" class="pg">
+  <div id="profile"></div>
+</div>
+
+<!-- Модалка подписки -->
+<div class="modal-overlay" id="sub-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-title">❌ Нет подписки</div>
+    <div class="modal-desc">Для участия в розыгрыше нужно подписаться на каналы:</div>
+    <div id="modal-channels"></div>
+    <button class="modal-close" onclick="closeModalDirect()">Закрыть</button>
   </div>
 </div>
 
@@ -113,206 +148,250 @@ body{font-family:'Golos Text',sans-serif;background:var(--bg);color:var(--t);min
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
-// Данные пользователя из Telegram
-const userId   = tg?.initDataUnsafe?.user?.id || 0;
-const userName = tg?.initDataUnsafe?.user?.first_name || 'Пользователь';
+// ════════════════════════════
+//  ДАННЫЕ
+// ════════════════════════════
 
-// Локальное хранилище участий
-function getMyGiveaways() { return JSON.parse(localStorage.getItem('my_gws') || '[]'); }
-function saveMyGiveaways(d) { localStorage.setItem('my_gws', JSON.stringify(d)); }
-function isJoined(gw_id) { return getMyGiveaways().includes(gw_id); }
-function markJoined(gw_id) {
-  const d = getMyGiveaways();
-  if (!d.includes(gw_id)) { d.push(gw_id); saveMyGiveaways(d); }
+// Обязательный канал — должен совпадать с REQUIRED_CHANNEL в боте
+const REQUIRED_CHANNEL = "@zonavpnrobot0";
+
+// Активные розыгрыши — в реальности берутся из localStorage (синхронизированного ботом)
+// Здесь используем хранилище которое заполняет admin.html
+function getGiveaways() {
+  return JSON.parse(localStorage.getItem('gws') || '[]').filter(g => g.status === 'active');
 }
 
-// Список розыгрышей — берём из admin хранилища
-// В реальной ситуации это данные которые бот мог бы передать через API
-// Здесь используем общее хранилище если оба WebApp на одном домене
-function getActiveGiveaways() {
-  const all = JSON.parse(localStorage.getItem('gws') || '[]');
-  return all.filter(g => g.status === 'active');
+function getMyJoined() { return JSON.parse(localStorage.getItem('my_joined') || '[]'); }
+function markJoined(id) {
+  const d = getMyJoined(); if (!d.includes(id)) { d.push(id); localStorage.setItem('my_joined', JSON.stringify(d)); }
+}
+function isJoined(id) { return getMyJoined().includes(id); }
+
+function getMyRefs() { return JSON.parse(localStorage.getItem('my_refs') || '{}'); }
+function saveRef(gw_id, link) {
+  const d = getMyRefs(); d[gw_id] = link; localStorage.setItem('my_refs', JSON.stringify(d));
 }
 
-window.onload = () => {
-  loadGiveaways();
-};
+window.onload = () => { loadGiveaways(); };
 
+// ════════════════════════════
+//  НАВИГАЦИЯ
+// ════════════════════════════
 function showPage(n, btn) {
   document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
   document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
   document.getElementById('pg-' + n).classList.add('on');
   if (btn) btn.classList.add('on');
   if (n === 'giveaways') loadGiveaways();
-  if (n === 'mystat')    loadMyStats();
+  if (n === 'profile')   loadProfile();
 }
 
+// ════════════════════════════
+//  ТОСТ
+// ════════════════════════════
 function toast(msg, type='ok') {
   const t = document.getElementById('toast');
   t.textContent = msg; t.className = `toast ${type} show`;
-  setTimeout(() => t.className = 'toast', 2500);
+  setTimeout(() => t.className = 'toast', 3000);
 }
 
-function timeLeft(ends_at) {
-  const diff = new Date(ends_at) - new Date();
-  if (diff <= 0) return 'Завершается...';
-  const h = Math.floor(diff / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  if (h > 24) return `⏰ ${Math.floor(h/24)} дн. ${h%24} ч.`;
-  if (h > 0)  return `⏰ ${h} ч. ${m} мин.`;
-  return `⏰ ${m} мин.`;
+// ════════════════════════════
+//  РОЗЫГРЫШИ
+// ════════════════════════════
+function timeLeft(gw) {
+  // Считаем примерно из duration
+  return `⏱ ${gw.dur || gw.duration_hours || '?'} часов`;
 }
 
 function loadGiveaways() {
-  const container = document.getElementById('giveaways-list');
-  const giveaways = getActiveGiveaways();
+  const container = document.getElementById('list');
+  const gws = getGiveaways();
 
-  if (!giveaways.length) {
+  if (!gws.length) {
     container.innerHTML = `
       <div class="empty">
         <div class="empty-i">🎯</div>
         <div class="empty-t">
-          Активных розыгрышей пока нет.<br>
-          Следи за обновлениями в канале!
+          Активных розыгрышей пока нет<br>
+          Следи за обновлениями в канале!<br><br>
+          <a href="https://t.me/zonavpnrobot0" style="color:var(--a)">@zonavpnrobot0</a>
         </div>
       </div>`;
     return;
   }
 
-  container.innerHTML = giveaways.map(gw => {
+  container.innerHTML = gws.map(gw => {
     const joined   = isJoined(gw.id);
-    const endDate  = gw.starts
-      ? new Date(new Date(gw.starts).getTime() + gw.dur * 3600000)
-      : new Date(Date.now() + gw.dur * 3600000);
-    const tl = gw.ends_at ? timeLeft(gw.ends_at) : `⏱ ${gw.dur} ч.`;
     const prizes   = gw.prizes || [];
-    const prizesHtml = prizes.length ? prizes.map(p =>
-      `<div class="prize-row"><span class="prize-place">${p.place}</span><span class="prize-name">${p.label}</span></div>`
-    ).join('') : '';
+    const count    = gw.participants || 0;
+
+    const prizesHtml = prizes.length ? `
+      <div class="gprizes">
+        <div class="gprizes-title">🎁 ПРИЗЫ</div>
+        ${prizes.map(p => `
+          <div class="prize-item">
+            <span class="prize-num">${p.place}</span>
+            <div>
+              <div class="prize-label">${p.label}</div>
+              <div class="prize-hint">Промокод придёт в личные сообщения</div>
+            </div>
+          </div>`).join('')}
+      </div>` : '';
 
     return `
-      <div class="gcard" id="gcard-${gw.id}">
-        <div class="gcard-top">
-          <div class="gcard-badge">🟢 АКТИВЕН</div>
-          <div class="gcard-title">${gw.title}</div>
-          <div class="gcard-desc">${gw.description || ''}</div>
-          <div class="gcard-info">
-            <div class="info-cell">
-              <div class="info-num">${gw.winners_count}</div>
-              <div class="info-lbl">победителей</div>
-            </div>
-            <div class="info-cell">
-              <div class="info-num" id="cnt-${gw.id}">${gw.participants || 0}</div>
-              <div class="info-lbl">участников</div>
-            </div>
-            <div class="info-cell">
-              <div class="info-num">${prizes.length}</div>
-              <div class="info-lbl">призов</div>
-            </div>
+      <div class="gcard">
+        <div class="gtop">
+          <div class="glive">🔴 ИДЁТ РОЗЫГРЫШ</div>
+          <div class="gtitle">${gw.title}</div>
+          <div class="gdesc">${gw.description || ''}</div>
+          <div class="gstats">
+            <div class="gstat"><div class="gstat-n" id="cnt-${gw.id}">${count}</div><div class="gstat-l">участников</div></div>
+            <div class="gstat"><div class="gstat-n">${gw.winners_count}</div><div class="gstat-l">победителей</div></div>
+            <div class="gstat"><div class="gstat-n">${prizes.length}</div><div class="gstat-l">призов</div></div>
           </div>
-          <div class="timer">${tl}</div>
-          <div class="pbar"><div class="pfill" style="width:${Math.min(100,(gw.participants||0)/10*100)}%"></div></div>
+          <div class="gtimer">${timeLeft(gw)}</div>
         </div>
-        ${prizesHtml ? `<div class="prizes-preview"><div style="font-size:11px;color:var(--m);margin-bottom:6px;font-weight:700">🎁 ПРИЗЫ:</div>${prizesHtml}</div>` : ''}
-        <button class="join-btn ${joined?'joined':''}" id="btn-${gw.id}"
-          onclick="joinGiveaway(${gw.id},'${gw.channel||''}')"
-          ${joined?'disabled':''}>
-          ${joined ? '✅ ТЫ УЖЕ УЧАСТВУЕШЬ' : '🎟 УЧАСТВОВАТЬ'}
-        </button>
+        ${prizesHtml}
+        <div class="join-wrap">
+          <button class="join-btn ${joined ? 'joined' : ''}"
+            id="jbtn-${gw.id}"
+            onclick="joinGiveaway(${gw.id}, '${gw.channel || ''}')"
+            ${joined ? 'disabled' : ''}>
+            ${joined ? '✅ ТЫ УЖЕ УЧАСТВУЕШЬ' : '🎟 УЧАСТВОВАТЬ БЕСПЛАТНО'}
+          </button>
+        </div>
       </div>`;
   }).join('');
 }
 
+// ════════════════════════════
+//  УЧАСТИЕ
+// ════════════════════════════
 function joinGiveaway(gw_id, channel) {
-  const btn = document.getElementById(`btn-${gw_id}`);
+  const btn = document.getElementById(`jbtn-${gw_id}`);
   if (!btn || btn.disabled) return;
 
+  btn.classList.add('loading');
+  btn.textContent = '⏳ ПРОВЕРКА ПОДПИСКИ...';
   btn.disabled = true;
-  btn.textContent = '⏳ РЕГИСТРАЦИЯ...';
 
-  // Отправляем боту
-  const data = { action: 'join_giveaway', giveaway_id: gw_id };
+  // Отправляем боту — он проверит подписку
+  const data = JSON.stringify({ action: 'join_giveaway', giveaway_id: gw_id });
 
   if (tg) {
-    tg.sendData(JSON.stringify(data));
-    // После отправки — бот ответит в чате
-    markJoined(gw_id);
-    btn.className = 'join-btn joined';
-    btn.textContent = '✅ ТЫ УЖЕ УЧАСТВУЕШЬ';
-    toast('🎉 Отлично! Проверь сообщения от бота.');
-    // Обновляем счётчик локально
-    const cnt = document.getElementById(`cnt-${gw_id}`);
-    if (cnt) cnt.textContent = parseInt(cnt.textContent || 0) + 1;
+    // Бот проверит подписку и ответит в чате
+    tg.sendData(data);
+
+    // Закрываем WebApp — бот ответит в чате
+    setTimeout(() => {
+      markJoined(gw_id);
+      btn.className = 'join-btn joined';
+      btn.textContent = '✅ ТЫ УЖЕ УЧАСТВУЕШЬ';
+      // Обновляем счётчик
+      const cnt = document.getElementById(`cnt-${gw_id}`);
+      if (cnt) cnt.textContent = parseInt(cnt.textContent || 0) + 1;
+      toast('🎉 Заявка отправлена! Проверь сообщения от бота.');
+    }, 500);
   } else {
-    // Для тестирования без Telegram
-    markJoined(gw_id);
-    btn.className = 'join-btn joined';
-    btn.textContent = '✅ ТЫ УЖЕ УЧАСТВУЕШЬ';
-    toast('🎉 Зарегистрирован! (тест)');
+    // Тестовый режим без Telegram
+    setTimeout(() => {
+      markJoined(gw_id);
+      btn.className = 'join-btn joined';
+      btn.textContent = '✅ ТЫ УЖЕ УЧАСТВУЕШЬ';
+      toast('🎉 Зарегистрирован! (тест)');
+    }, 800);
   }
 }
 
-function loadMyStats() {
-  const container = document.getElementById('mystat-container');
-  const myGws = getMyGiveaways();
-  const allGws = JSON.parse(localStorage.getItem('gws') || '[]');
+// ════════════════════════════
+//  ПРОФИЛЬ
+// ════════════════════════════
+function loadProfile() {
+  const container = document.getElementById('profile');
+  const userName  = tg?.initDataUnsafe?.user?.first_name || 'Пользователь';
+  const joined    = getMyJoined();
+  const allGws    = JSON.parse(localStorage.getItem('gws') || '[]');
+  const refs      = getMyRefs();
 
-  const participated = myGws.length;
-  const active = myGws.filter(id => allGws.find(g => g.id === id && g.status === 'active')).length;
-
-  // Реф-ссылка (если бот передал через initData)
-  const botUsername = tg?.initDataUnsafe?.start_param || 'your_bot';
+  const activeJoined = joined.filter(id => allGws.find(g => g.id === id && g.status === 'active'));
 
   container.innerHTML = `
-    <div class="my-card">
-      <div class="my-title">👤 ${userName}</div>
-      <div class="my-row">
-        <span class="my-label">Участвовал в розыгрышах</span>
-        <span class="my-val">${participated}</span>
+    <div class="profile-card">
+      <div class="profile-title">👤 ${userName}</div>
+      <div class="prow">
+        <span class="plabel">Участвовал в розыгрышах</span>
+        <span class="pval">${joined.length}</span>
       </div>
-      <div class="my-row">
-        <span class="my-label">Активных участий</span>
-        <span class="my-val" style="color:var(--ok)">${active}</span>
+      <div class="prow">
+        <span class="plabel">Активных участий</span>
+        <span class="pval" style="color:var(--ok)">${activeJoined.length}</span>
       </div>
     </div>
 
-    ${active > 0 ? `
-    <div class="my-card">
-      <div class="my-title">🎯 АКТИВНЫЕ УЧАСТИЯ</div>
-      ${myGws.filter(id => allGws.find(g => g.id === id && g.status === 'active')).map(id => {
+    ${activeJoined.length > 0 ? `
+    <div class="profile-card">
+      <div class="profile-title">🎯 МОИ АКТИВНЫЕ УЧАСТИЯ</div>
+      ${activeJoined.map(id => {
         const gw = allGws.find(g => g.id === id);
         if (!gw) return '';
+        const ref = refs[id];
         return `
-          <div class="my-row">
-            <span class="my-label">${gw.title}</span>
-            <span class="my-val" style="color:var(--a2)">🎟 участвую</span>
+          <div class="prow" style="flex-direction:column;align-items:flex-start;gap:8px">
+            <div style="font-weight:700">${gw.title}</div>
+            ${ref ? `
+            <div class="ref-box" style="width:100%">
+              <div class="ref-lbl">🔗 Твоя реф-ссылка:</div>
+              <div class="ref-val">${ref}</div>
+              <button class="copy-btn" onclick="copyText('${ref}')">📋 Скопировать ссылку</button>
+            </div>` : ''}
           </div>`;
       }).join('')}
     </div>` : ''}
 
-    <div class="my-card">
-      <div class="my-title">🔗 РЕФ-ССЫЛКА</div>
-      <div style="color:var(--m);font-size:12px;margin-bottom:10px">
-        Приглашай друзей — за каждого получаешь +1 билет в активных розыгрышах!
+    <div class="profile-card">
+      <div class="profile-title">📢 ОБЯЗАТЕЛЬНАЯ ПОДПИСКА</div>
+      <div style="color:var(--m);font-size:12px;margin-bottom:10px">Для участия в любом розыгрыше:</div>
+      <div class="modal-ch">
+        <span class="modal-ch-name">${REQUIRED_CHANNEL}</span>
+        <a class="modal-ch-link" href="https://t.me/${REQUIRED_CHANNEL.replace('@','')}" target="_blank">Подписаться</a>
       </div>
-      <div class="ref-box">
-        <div class="ref-label">Напиши боту /start чтобы получить реф-ссылку:</div>
-        <div class="ref-link" id="ref-link">Открой чат с ботом → /start</div>
-      </div>
-      <button class="copy-btn" onclick="openBot()">💬 Открыть бота</button>
     </div>`;
 }
 
-function openBot() {
-  if (tg) tg.close();
+// ════════════════════════════
+//  МОДАЛКА ПОДПИСКИ
+// ════════════════════════════
+function showSubModal(channels) {
+  const modal = document.getElementById('sub-modal');
+  const cont  = document.getElementById('modal-channels');
+  cont.innerHTML = channels.map(ch => `
+    <div class="modal-ch">
+      <span class="modal-ch-name">${ch}</span>
+      <a class="modal-ch-link" href="https://t.me/${ch.replace('@','')}" target="_blank">Подписаться</a>
+    </div>`).join('');
+  modal.classList.add('show');
 }
 
-function copyRef() {
-  const text = document.getElementById('ref-link').textContent;
+function closeModal(e) {
+  if (e.target === document.getElementById('sub-modal')) closeModalDirect();
+}
+
+function closeModalDirect() {
+  document.getElementById('sub-modal').classList.remove('show');
+}
+
+// ════════════════════════════
+//  УТИЛИТЫ
+// ════════════════════════════
+function copyText(text) {
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => toast('✅ Ссылка скопирована!'));
+    navigator.clipboard.writeText(text).then(() => toast('✅ Скопировано!'));
   } else {
-    toast('Скопируй ссылку вручную', 'err');
+    const el = document.createElement('textarea');
+    el.value = text; document.body.appendChild(el);
+    el.select(); document.execCommand('copy');
+    document.body.removeChild(el);
+    toast('✅ Скопировано!');
   }
 }
 </script>
