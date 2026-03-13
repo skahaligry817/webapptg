@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giveaway Admin</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Golos+Text:wght@400;500;600;700&display=swap');
+:root{--bg:#0a0a0f;--s:#13131a;--s2:#1c1c28;--b:#2a2a3d;--a:#7c6af7;--a2:#f7a26a;--ok:#4ade80;--err:#f87171;--t:#e8e8f0;--m:#6b6b88;--r:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Golos Text',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;padding-bottom:80px}
+.hdr{background:linear-gradient(135deg,#1a1030,#0f1a30);border-bottom:1px solid var(--b);padding:16px 20px;position:sticky;top:0;z-index:100}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;background:linear-gradient(90deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:var(--m);font-size:11px;margin-top:1px}
+.nav{display:flex;gap:4px;padding:12px 20px 0;border-bottom:1px solid var(--b);overflow-x:auto}
+.nav::-webkit-scrollbar{display:none}
+.nb{background:none;border:none;cursor:pointer;color:var(--m);font-family:'Golos Text',sans-serif;font-size:13px;font-weight:600;padding:7px 14px 9px;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.nb.on{color:var(--a);border-bottom-color:var(--a)}
+.pg{display:none;padding:16px;animation:fi .2s ease}
+.pg.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:14px;margin-bottom:10px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.card.active::before{background:var(--ok)}.card.scheduled::before{background:var(--a2)}.card.finished::before{background:var(--m)}.card.cancelled::before{background:var(--err)}
+.ctitle{font-weight:700;font-size:14px;margin-bottom:5px;padding-left:8px}
+.cmeta{display:flex;flex-wrap:wrap;gap:6px;padding-left:8px}
+.bdg{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
+.bdg.active{background:#4ade8022;color:var(--ok)}.bdg.scheduled{background:#f7a26a22;color:var(--a2)}.bdg.finished{background:#ffffff11;color:var(--m)}.bdg.cancelled{background:#f8717122;color:var(--err)}.bdg.i{background:#7c6af722;color:var(--a)}
+.cact{display:flex;gap:6px;margin-top:10px;padding-left:8px}
+.btn{border:none;cursor:pointer;font-family:'Golos Text',sans-serif;font-size:11px;font-weight:700;border-radius:7px;padding:5px 10px;transition:all .15s}
+.btn.d{background:#f8717122;color:var(--err)}.btn.ok{background:#4ade8022;color:var(--ok)}.btn.p{background:#7c6af722;color:var(--a)}
+.btn:hover{filter:brightness(1.3)}
+.pb{height:3px;background:var(--b);border-radius:3px;margin-top:8px;overflow:hidden}
+.pf{height:100%;background:linear-gradient(90deg,var(--a),var(--a2));border-radius:3px}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.sc{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:14px;text-align:center}
+.sn{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;background:linear-gradient(135deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sl{color:var(--m);font-size:11px;margin-top:3px}
+.fs{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.fst{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--a);margin-bottom:12px}
+.fr{margin-bottom:12px}
+label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:5px}
+input,select,textarea{width:100%;background:var(--s2);border:1px solid var(--b);border-radius:9px;padding:9px 12px;color:var(--t);font-family:'Golos Text',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--a)}
+textarea{resize:vertical;min-height:70px}
+select option{background:var(--s2)}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pr{display:flex;gap:6px;align-items:center;background:var(--s2);border:1px solid var(--b);border-radius:9px;padding:8px 10px;margin-bottom:7px}
+.pn{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--a2);min-width:20px}
+.pr input{background:none;border:none;padding:3px 5px;font-size:12px;flex:1}
+.pr input:focus{box-shadow:none}
+.rp{background:none;border:none;cursor:pointer;color:var(--m);font-size:16px;padding:0 3px;transition:color .15s}
+.rp:hover{color:var(--err)}
+.apb{width:100%;background:none;border:1px dashed var(--b);border-radius:9px;padding:9px;cursor:pointer;color:var(--m);font-family:'Golos Text',sans-serif;font-size:12px;font-weight:600;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px}
+.apb:hover{border-color:var(--a);color:var(--a)}
+.tg{display:flex;gap:6px;flex-wrap:wrap}
+.tb{border:1px solid var(--b);background:none;cursor:pointer;color:var(--m);border-radius:9px;padding:7px 12px;font-family:'Golos Text',sans-serif;font-size:12px;font-weight:600;transition:all .15s}
+.tb.on{background:var(--a);border-color:var(--a);color:#fff}
+.bm{width:100%;padding:14px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--a),#5b4fd4);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;border-radius:var(--r);transition:all .2s;margin-top:6px}
+.bm:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.bm:active{transform:translateY(0)}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:var(--ok);color:var(--ok)}.toast.err{border-color:var(--err);color:var(--err)}
+.empty{text-align:center;padding:36px 20px;color:var(--m)}
+.empty-i{font-size:42px;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="logo">🖥 ADMIN PANEL</div>
+  <div class="sub">Управление розыгрышами</div>
+</div>
+<nav class="nav">
+  <button class="nb on" onclick="showPage('list',this)">📋 Розыгрыши</button>
+  <button class="nb" onclick="showPage('create',this)">➕ Создать</button>
+  <button class="nb" onclick="showPage('stats',this)">📊 Статистика</button>
+</nav>
+
+<div id="pg-list" class="pg on">
+  <div id="list-container"><div class="empty"><div class="empty-i">🎯</div><div>Загрузка...</div></div></div>
+</div>
+
+<div id="pg-create" class="pg">
+  <div class="fs">
+    <div class="fst">📢 КАНАЛ</div>
+    <div class="fr"><label>Выбери канал для публикации</label><select id="f-ch"></select></div>
+  </div>
+  <div class="fs">
+    <div class="fst">📝 ОСНОВНОЕ</div>
+    <div class="fr"><label>Название</label><input id="f-title" placeholder="Большой розыгрыш декабря"></div>
+    <div class="fr"><label>Описание</label><textarea id="f-desc" placeholder="Разыгрываем промокоды..."></textarea></div>
+    <div class="r2">
+      <div class="fr"><label>Победителей</label><input id="f-win" type="number" value="1" min="1" max="20"></div>
+      <div class="fr"><label>Длительность (ч)</label><input id="f-dur" type="number" value="24" min="1" max="720"></div>
+    </div>
+  </div>
+  <div class="fs">
+    <div class="fst">🎁 ПРИЗЫ</div>
+    <div id="prizes"></div>
+    <button class="apb" onclick="addPrize()">＋ Добавить приз</button>
+  </div>
+  <div class="fs">
+    <div class="fst">🚀 ЗАПУСК</div>
+    <div class="fr">
+      <label>Когда?</label>
+      <div class="tg">
+        <button class="tb on" onclick="setSt('now',this)">⚡ Сразу</button>
+        <button class="tb" onclick="setSt('later',this)">📅 Отложить</button>
+      </div>
+    </div>
+    <div id="sch-row" class="fr" style="display:none">
+      <label>Дата и время запуска</label>
+      <input id="f-starts" type="datetime-local">
+    </div>
+  </div>
+  <div class="fs">
+    <div class="fst">🔁 ПОВТОР</div>
+    <div class="tg">
+      <button class="tb on" onclick="setRep('none',this)">❌ Нет</button>
+      <button class="tb" onclick="setRep('daily',this)">📅 Каждый день</button>
+      <button class="tb" onclick="setRep('weekly',this)">📆 Каждую неделю</button>
+    </div>
+  </div>
+  <button class="bm" onclick="submit()">СОЗДАТЬ РОЗЫГРЫШ</button>
+</div>
+
+<div id="pg-stats" class="pg">
+  <div id="stats-container"><div class="empty"><div class="empty-i">📊</div><div>Загрузка...</div></div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+let stType='now', repType='none', pCount=0;
+
+// ════════════════════════════════
+//  ⚙️  ТВОИ КАНАЛЫ
+// ════════════════════════════════
+const MY_CHANNELS = [
+  "@твой_канал_1",
+  "@твой_канал_2",
+];
+// ════════════════════════════════
+
+window.onload = () => { fillCh(); addPrize(); loadList(); };
+
+function fillCh() {
+  const s=document.getElementById('f-ch');
+  MY_CHANNELS.forEach(ch => {
+    const o=document.createElement('option');
+    o.value=ch; o.text=ch; s.appendChild(o);
+  });
+}
+
+function showPage(n,btn) {
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+n).classList.add('on');
+  if(btn) btn.classList.add('on');
+  if(n==='list') loadList();
+  if(n==='stats') loadStats();
+}
+
+function toast(msg,type='ok') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${type} show`;
+  setTimeout(()=>t.className='toast',2500);
+}
+
+function gws() { return JSON.parse(localStorage.getItem('gws')||'[]'); }
+function saveGws(d) { localStorage.setItem('gws',JSON.stringify(d)); }
+
+function loadList() {
+  const c=document.getElementById('list-container');
+  const d=gws();
+  if(!d.length){ c.innerHTML=`<div class="empty"><div class="empty-i">🎯</div><div>Нет розыгрышей. Создай первый!</div></div>`; return; }
+  const sl={active:'🟢 Активен',scheduled:'🟡 Запланирован',finished:'⚪ Завершён',cancelled:'🔴 Отменён'};
+  c.innerHTML=d.map((g,i)=>`
+    <div class="card ${g.status}">
+      <div class="ctitle">${g.title}</div>
+      <div class="cmeta">
+        <span class="bdg ${g.status}">${sl[g.status]||g.status}</span>
+        <span class="bdg i">📢 ${g.channel}</span>
+        <span class="bdg i">🏆 ${g.winners_count}</span>
+        <span class="bdg i">⏱ ${g.dur}ч</span>
+        ${g.rep&&g.rep!=='none'?`<span class="bdg i">🔁 ${g.rep==='daily'?'ежедн.':'еженед.'}</span>`:''}
+        ${g.starts?`<span class="bdg i">📅 ${fdt(g.starts)}</span>`:''}
+      </div>
+      <div class="pb"><div class="pf" style="width:${g.status==='active'?60:g.status==='finished'?100:20}%"></div></div>
+      <div class="cact">
+        ${g.status==='active'?`<button class="btn ok" onclick="finGw(${i})">✅ Завершить</button>`:''}
+        ${g.status!=='finished'&&g.status!=='cancelled'?`<button class="btn d" onclick="canGw(${i})">❌ Отменить</button>`:''}
+        <button class="btn p" onclick="showP(${i})">🎁 Призы</button>
+      </div>
+    </div>`).join('');
+}
+
+function fdt(iso){ if(!iso) return ''; return new Date(iso).toLocaleString('ru',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+
+function finGw(i){
+  if(!confirm('Завершить?')) return;
+  const d=gws(); d[i].status='finished'; saveGws(d);
+  send({action:'finish_giveaway',giveaway_id:d[i].id});
+  loadList(); toast('✅ Завершён!');
+}
+
+function canGw(i){
+  if(!confirm('Отменить?')) return;
+  const d=gws(); d[i].status='cancelled'; saveGws(d);
+  send({action:'cancel_giveaway',giveaway_id:d[i].id});
+  loadList(); toast('❌ Отменён','err');
+}
+
+function showP(i){
+  const p=gws()[i].prizes||[];
+  alert('🎁 Призы:\n\n'+(p.length?p.map(x=>`${x.place}. ${x.label} | ${x.code}`).join('\n'):'Нет'));
+}
+
+function loadStats(){
+  const c=document.getElementById('stats-container');
+  const d=gws();
+  const tot=d.length,act=d.filter(g=>g.status==='active').length,
+        fin=d.filter(g=>g.status==='finished').length,sch=d.filter(g=>g.status==='scheduled').length;
+  c.innerHTML=`
+    <div class="sg">
+      <div class="sc"><div class="sn">${tot}</div><div class="sl">Всего</div></div>
+      <div class="sc"><div class="sn" style="color:var(--ok)">${act}</div><div class="sl">Активных</div></div>
+      <div class="sc"><div class="sn" style="color:var(--a2)">${sch}</div><div class="sl">Запланировано</div></div>
+      <div class="sc"><div class="sn" style="color:var(--m)">${fin}</div><div class="sl">Завершено</div></div>
+    </div>
+    ${act>0?`<div class="fs"><div class="fst">🟢 АКТИВНЫЕ</div>${d.filter(g=>g.status==='active').map(g=>`
+      <div style="padding:8px 0;border-bottom:1px solid var(--b)">
+        <div style="font-weight:700;font-size:13px">${g.title}</div>
+        <div style="color:var(--m);font-size:11px;margin-top:3px">📢 ${g.channel} · 🏆 ${g.winners_count} · ⏱ ${g.dur}ч</div>
+      </div>`).join('')}</div>`:''}`;
+}
+
+function setSt(t,btn){
+  stType=t;
+  document.querySelectorAll('#pg-create .fs:nth-child(4) .tb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('sch-row').style.display=t==='later'?'block':'none';
+}
+
+function setRep(t,btn){
+  repType=t;
+  document.querySelectorAll('#pg-create .fs:nth-child(5) .tb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function addPrize(){
+  pCount++;
+  const c=document.getElementById('prizes');
+  const d=document.createElement('div');
+  d.className='pr'; d.id=`p-${pCount}`;
+  d.innerHTML=`<span class="pn">${pCount}</span>
+    <input type="text" placeholder="Название приза" class="pl">
+    <span style="color:var(--m)">|</span>
+    <input type="text" placeholder="ПРОМОКОД" class="pc" style="font-family:monospace;max-width:120px">
+    <button class="rp" onclick="remP('p-${pCount}')">×</button>`;
+  c.appendChild(d); updNums();
+}
+
+function remP(id){
+  const el=document.getElementById(id);
+  if(el&&document.querySelectorAll('.pr').length>1){el.remove();updNums();}
+}
+
+function updNums(){ document.querySelectorAll('.pr').forEach((r,i)=>r.querySelector('.pn').textContent=i+1); }
+
+function submit(){
+  const ch=document.getElementById('f-ch').value;
+  const title=document.getElementById('f-title').value.trim();
+  const desc=document.getElementById('f-desc').value.trim();
+  const win=parseInt(document.getElementById('f-win').value);
+  const dur=parseFloat(document.getElementById('f-dur').value);
+  if(!ch){toast('❌ Нет канала','err');return;}
+  if(!title){toast('❌ Введи название','err');return;}
+  if(!desc){toast('❌ Введи описание','err');return;}
+  const prizes=[];
+  document.querySelectorAll('.pr').forEach((r,i)=>{
+    const l=r.querySelector('.pl').value.trim(),c=r.querySelector('.pc').value.trim();
+    if(l&&c) prizes.push({place:i+1,label:l,code:c});
+  });
+  if(!prizes.length){toast('❌ Добавь хотя бы один приз','err');return;}
+  let starts=null;
+  if(stType==='later'){
+    const v=document.getElementById('f-starts').value;
+    if(!v){toast('❌ Укажи дату','err');return;}
+    starts=new Date(v).toISOString();
+  }
+  const gw={id:Date.now(),channel:ch,title,description:desc,winners_count:win,dur,
+             starts,rep:repType,status:stType==='later'?'scheduled':'active',
+             prizes,created:new Date().toISOString()};
+  const d=gws(); d.unshift(gw); saveGws(d);
+
+  // Отправляем в бот
+  send({
+    action:'create_giveaway',
+    giveaway:{channel:ch,title,description:desc,winners_count:win,duration_hours:dur,
+               starts_at:starts,repeat_interval:repType==='none'?null:repType},
+    prizes
+  });
+
+  toast(stType==='later'?'📅 Запланирован!':'✅ Создан!');
+  document.getElementById('f-title').value='';
+  document.getElementById('f-desc').value='';
+  document.getElementById('f-win').value=1;
+  document.getElementById('f-dur').value=24;
+  document.getElementById('prizes').innerHTML='';
+  pCount=0; addPrize(); stType='now'; repType='none';
+  setTimeout(()=>document.querySelector('.nb').click(),800);
+}
+
+function send(data){
+  if(tg) tg.sendData(JSON.stringify(data));
+  else console.log('send:',data);
+}
+</script>
+</body>
+</html>
