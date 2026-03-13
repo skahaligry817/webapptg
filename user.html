@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Розыгрыши</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Golos+Text:wght@400;500;600;700&display=swap');
+:root{--bg:#0a0a0f;--s:#13131a;--s2:#1c1c28;--b:#2a2a3d;--a:#7c6af7;--a2:#f7a26a;--ok:#4ade80;--err:#f87171;--t:#e8e8f0;--m:#6b6b88;--r:16px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Golos Text',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;padding-bottom:30px}
+
+/* Шапка */
+.hdr{background:linear-gradient(135deg,#1a0a30 0%,#0a1a30 100%);padding:20px 20px 16px;text-align:center;position:relative;overflow:hidden}
+.hdr::before{content:'🎉';position:absolute;font-size:120px;opacity:.05;top:-20px;left:-20px}
+.hdr::after{content:'🎊';position:absolute;font-size:100px;opacity:.05;bottom:-20px;right:-20px}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:3px;background:linear-gradient(90deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tagline{color:var(--m);font-size:12px;margin-top:3px}
+
+/* Навигация */
+.nav{display:flex;background:var(--s);border-bottom:1px solid var(--b)}
+.nb{flex:1;background:none;border:none;cursor:pointer;color:var(--m);font-family:'Golos Text',sans-serif;font-size:12px;font-weight:700;padding:12px 8px;border-bottom:2px solid transparent;transition:all .2s}
+.nb.on{color:var(--a);border-bottom-color:var(--a)}
+
+.pg{display:none;padding:16px;animation:fi .2s ease}
+.pg.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* Карточка розыгрыша */
+.gcard{background:var(--s);border:1px solid var(--b);border-radius:var(--r);margin-bottom:14px;overflow:hidden;transition:border-color .2s}
+.gcard:hover{border-color:var(--a)}
+.gcard-top{padding:16px 16px 12px;position:relative}
+.gcard-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:#4ade8022;color:var(--ok);margin-bottom:8px}
+.gcard-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;line-height:1.1;margin-bottom:6px}
+.gcard-desc{color:var(--m);font-size:13px;line-height:1.5}
+.gcard-info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--b);margin-top:12px;border-radius:10px;overflow:hidden}
+.info-cell{background:var(--s2);padding:10px 8px;text-align:center}
+.info-num{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--a)}
+.info-lbl{color:var(--m);font-size:10px;margin-top:1px}
+.timer{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--a2);margin-top:10px;letter-spacing:1px}
+
+/* Кнопка участвовать */
+.join-btn{display:block;width:100%;padding:14px;background:linear-gradient(135deg,var(--a),#5b4fd4);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;text-align:center;border:none;cursor:pointer;transition:all .2s}
+.join-btn:hover{filter:brightness(1.1)}
+.join-btn:active{filter:brightness(.95)}
+.join-btn.joined{background:linear-gradient(135deg,#2a4a2a,#1a3a1a);color:var(--ok)}
+.join-btn:disabled{opacity:.6;cursor:not-allowed}
+
+/* Моя статистика */
+.my-card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.my-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--a);margin-bottom:12px}
+.my-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b)}
+.my-row:last-child{border:none}
+.my-label{color:var(--m);font-size:12px}
+.my-val{font-weight:700;font-size:14px}
+.ref-box{background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:12px;margin-top:10px}
+.ref-label{color:var(--m);font-size:11px;margin-bottom:6px}
+.ref-link{font-family:monospace;font-size:12px;color:var(--a);word-break:break-all;cursor:pointer}
+.copy-btn{display:block;width:100%;margin-top:8px;padding:8px;background:#7c6af722;border:none;border-radius:8px;color:var(--a);font-family:'Golos Text',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.copy-btn:hover{background:#7c6af733}
+
+/* Пустое состояние */
+.empty{text-align:center;padding:50px 20px;color:var(--m)}
+.empty-i{font-size:50px;margin-bottom:12px}
+.empty-t{font-size:14px;line-height:1.6}
+
+/* Тост */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:var(--ok);color:var(--ok)}.toast.err{border-color:var(--err);color:var(--err)}
+
+/* Прогресс-бар */
+.pbar{height:3px;background:var(--b);margin-top:10px}
+.pfill{height:100%;background:linear-gradient(90deg,var(--a),var(--a2));transition:width .5s}
+
+/* Призы превью */
+.prizes-preview{padding:10px 16px 14px;background:var(--s2);border-top:1px solid var(--b)}
+.prize-row{display:flex;align-items:center;gap:8px;padding:5px 0}
+.prize-place{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--a2);min-width:20px}
+.prize-name{font-size:12px;color:var(--m)}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="logo">🎉 РОЗЫГРЫШИ</div>
+  <div class="tagline">Участвуй и выигрывай промокоды!</div>
+</div>
+
+<nav class="nav">
+  <button class="nb on" onclick="showPage('giveaways',this)">🎯 Розыгрыши</button>
+  <button class="nb" onclick="showPage('mystat',this)">👤 Моя статистика</button>
+</nav>
+
+<!-- РОЗЫГРЫШИ -->
+<div id="pg-giveaways" class="pg on">
+  <div id="giveaways-list">
+    <div class="empty"><div class="empty-i">⏳</div><div class="empty-t">Загрузка розыгрышей...</div></div>
+  </div>
+</div>
+
+<!-- МОЯ СТАТИСТИКА -->
+<div id="pg-mystat" class="pg">
+  <div id="mystat-container">
+    <div class="empty"><div class="empty-i">👤</div><div class="empty-t">Загрузка...</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+// Данные пользователя из Telegram
+const userId   = tg?.initDataUnsafe?.user?.id || 0;
+const userName = tg?.initDataUnsafe?.user?.first_name || 'Пользователь';
+
+// Локальное хранилище участий
+function getMyGiveaways() { return JSON.parse(localStorage.getItem('my_gws') || '[]'); }
+function saveMyGiveaways(d) { localStorage.setItem('my_gws', JSON.stringify(d)); }
+function isJoined(gw_id) { return getMyGiveaways().includes(gw_id); }
+function markJoined(gw_id) {
+  const d = getMyGiveaways();
+  if (!d.includes(gw_id)) { d.push(gw_id); saveMyGiveaways(d); }
+}
+
+// Список розыгрышей — берём из admin хранилища
+// В реальной ситуации это данные которые бот мог бы передать через API
+// Здесь используем общее хранилище если оба WebApp на одном домене
+function getActiveGiveaways() {
+  const all = JSON.parse(localStorage.getItem('gws') || '[]');
+  return all.filter(g => g.status === 'active');
+}
+
+window.onload = () => {
+  loadGiveaways();
+};
+
+function showPage(n, btn) {
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
+  document.getElementById('pg-' + n).classList.add('on');
+  if (btn) btn.classList.add('on');
+  if (n === 'giveaways') loadGiveaways();
+  if (n === 'mystat')    loadMyStats();
+}
+
+function toast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  setTimeout(() => t.className = 'toast', 2500);
+}
+
+function timeLeft(ends_at) {
+  const diff = new Date(ends_at) - new Date();
+  if (diff <= 0) return 'Завершается...';
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  if (h > 24) return `⏰ ${Math.floor(h/24)} дн. ${h%24} ч.`;
+  if (h > 0)  return `⏰ ${h} ч. ${m} мин.`;
+  return `⏰ ${m} мин.`;
+}
+
+function loadGiveaways() {
+  const container = document.getElementById('giveaways-list');
+  const giveaways = getActiveGiveaways();
+
+  if (!giveaways.length) {
+    container.innerHTML = `
+      <div class="empty">
+        <div class="empty-i">🎯</div>
+        <div class="empty-t">
+          Активных розыгрышей пока нет.<br>
+          Следи за обновлениями в канале!
+        </div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = giveaways.map(gw => {
+    const joined   = isJoined(gw.id);
+    const endDate  = gw.starts
+      ? new Date(new Date(gw.starts).getTime() + gw.dur * 3600000)
+      : new Date(Date.now() + gw.dur * 3600000);
+    const tl = gw.ends_at ? timeLeft(gw.ends_at) : `⏱ ${gw.dur} ч.`;
+    const prizes   = gw.prizes || [];
+    const prizesHtml = prizes.length ? prizes.map(p =>
+      `<div class="prize-row"><span class="prize-place">${p.place}</span><span class="prize-name">${p.label}</span></div>`
+    ).join('') : '';
+
+    return `
+      <div class="gcard" id="gcard-${gw.id}">
+        <div class="gcard-top">
+          <div class="gcard-badge">🟢 АКТИВЕН</div>
+          <div class="gcard-title">${gw.title}</div>
+          <div class="gcard-desc">${gw.description || ''}</div>
+          <div class="gcard-info">
+            <div class="info-cell">
+              <div class="info-num">${gw.winners_count}</div>
+              <div class="info-lbl">победителей</div>
+            </div>
+            <div class="info-cell">
+              <div class="info-num" id="cnt-${gw.id}">${gw.participants || 0}</div>
+              <div class="info-lbl">участников</div>
+            </div>
+            <div class="info-cell">
+              <div class="info-num">${prizes.length}</div>
+              <div class="info-lbl">призов</div>
+            </div>
+          </div>
+          <div class="timer">${tl}</div>
+          <div class="pbar"><div class="pfill" style="width:${Math.min(100,(gw.participants||0)/10*100)}%"></div></div>
+        </div>
+        ${prizesHtml ? `<div class="prizes-preview"><div style="font-size:11px;color:var(--m);margin-bottom:6px;font-weight:700">🎁 ПРИЗЫ:</div>${prizesHtml}</div>` : ''}
+        <button class="join-btn ${joined?'joined':''}" id="btn-${gw.id}"
+          onclick="joinGiveaway(${gw.id},'${gw.channel||''}')"
+          ${joined?'disabled':''}>
+          ${joined ? '✅ ТЫ УЖЕ УЧАСТВУЕШЬ' : '🎟 УЧАСТВОВАТЬ'}
+        </button>
+      </div>`;
+  }).join('');
+}
+
+function joinGiveaway(gw_id, channel) {
+  const btn = document.getElementById(`btn-${gw_id}`);
+  if (!btn || btn.disabled) return;
+
+  btn.disabled = true;
+  btn.textContent = '⏳ РЕГИСТРАЦИЯ...';
+
+  // Отправляем боту
+  const data = { action: 'join_giveaway', giveaway_id: gw_id };
+
+  if (tg) {
+    tg.sendData(JSON.stringify(data));
+    // После отправки — бот ответит в чате
+    markJoined(gw_id);
+    btn.className = 'join-btn joined';
+    btn.textContent = '✅ ТЫ УЖЕ УЧАСТВУЕШЬ';
+    toast('🎉 Отлично! Проверь сообщения от бота.');
+    // Обновляем счётчик локально
+    const cnt = document.getElementById(`cnt-${gw_id}`);
+    if (cnt) cnt.textContent = parseInt(cnt.textContent || 0) + 1;
+  } else {
+    // Для тестирования без Telegram
+    markJoined(gw_id);
+    btn.className = 'join-btn joined';
+    btn.textContent = '✅ ТЫ УЖЕ УЧАСТВУЕШЬ';
+    toast('🎉 Зарегистрирован! (тест)');
+  }
+}
+
+function loadMyStats() {
+  const container = document.getElementById('mystat-container');
+  const myGws = getMyGiveaways();
+  const allGws = JSON.parse(localStorage.getItem('gws') || '[]');
+
+  const participated = myGws.length;
+  const active = myGws.filter(id => allGws.find(g => g.id === id && g.status === 'active')).length;
+
+  // Реф-ссылка (если бот передал через initData)
+  const botUsername = tg?.initDataUnsafe?.start_param || 'your_bot';
+
+  container.innerHTML = `
+    <div class="my-card">
+      <div class="my-title">👤 ${userName}</div>
+      <div class="my-row">
+        <span class="my-label">Участвовал в розыгрышах</span>
+        <span class="my-val">${participated}</span>
+      </div>
+      <div class="my-row">
+        <span class="my-label">Активных участий</span>
+        <span class="my-val" style="color:var(--ok)">${active}</span>
+      </div>
+    </div>
+
+    ${active > 0 ? `
+    <div class="my-card">
+      <div class="my-title">🎯 АКТИВНЫЕ УЧАСТИЯ</div>
+      ${myGws.filter(id => allGws.find(g => g.id === id && g.status === 'active')).map(id => {
+        const gw = allGws.find(g => g.id === id);
+        if (!gw) return '';
+        return `
+          <div class="my-row">
+            <span class="my-label">${gw.title}</span>
+            <span class="my-val" style="color:var(--a2)">🎟 участвую</span>
+          </div>`;
+      }).join('')}
+    </div>` : ''}
+
+    <div class="my-card">
+      <div class="my-title">🔗 РЕФ-ССЫЛКА</div>
+      <div style="color:var(--m);font-size:12px;margin-bottom:10px">
+        Приглашай друзей — за каждого получаешь +1 билет в активных розыгрышах!
+      </div>
+      <div class="ref-box">
+        <div class="ref-label">Напиши боту /start чтобы получить реф-ссылку:</div>
+        <div class="ref-link" id="ref-link">Открой чат с ботом → /start</div>
+      </div>
+      <button class="copy-btn" onclick="openBot()">💬 Открыть бота</button>
+    </div>`;
+}
+
+function openBot() {
+  if (tg) tg.close();
+}
+
+function copyRef() {
+  const text = document.getElementById('ref-link').textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => toast('✅ Ссылка скопирована!'));
+  } else {
+    toast('Скопируй ссылку вручную', 'err');
+  }
+}
+</script>
+</body>
+</html>
